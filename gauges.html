@@ -5,7 +5,7 @@
 	<meta http-equiv="expires" content="0" />
 	<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
 	<meta http-equiv="pragma" content="no-cache" />
-    <title>Google Gauge - Xively</title>
+    <title>Google Gauge - Local Data</title>
   </head>
   <body>
   <table>
@@ -246,6 +246,7 @@
         else
         {
 		var URLcall = 'https://api.xively.com/v2/feeds/1785749146/datastreams/'+metricID+'.json?&key=JnSmyhCrwAt7w8ecU7qUofv9O7leQCLGi8vq60y4p527Px3g'
+		var URLcall = 'http://theherrs.redirectme.net/gauge_data/'
 
 		$.ajax({
 		  url: URLcall,
