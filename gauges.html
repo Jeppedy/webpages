@@ -1,0 +1,283 @@
+<html>
+  <head>
+	<meta http-equiv="cache-control" content="max-age=0" />
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta http-equiv="expires" content="0" />
+	<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+	<meta http-equiv="pragma" content="no-cache" />
+    <title>Google Gauge - Xively</title>
+  </head>
+  <body>
+  <table>
+  <tr>
+  <td>
+    <div id='1_div'></div>
+    <div id='1_time'></div>
+  </td>
+  <td>
+    <div id='2_div'></div>
+    <div id='2_time'></div>
+  </td>
+  <td>
+    <div id='3_div'></div>
+    <div id='3_time'></div>
+  </td>
+  <td>
+    <div id='4_div'></div>
+    <div id='4_time'></div>
+  </td>
+  <td>
+    <div id='5_div'></div>
+    <div id='5_time'></div>
+  </td>
+  <td>
+    <div id='6_div'></div>
+    <div id='6_time'></div>
+  </td>
+  </tr>
+</table>
+
+  </body>
+</html>
+
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'></script>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+    var dataTable;
+    var timeTable;
+    options_Aquarium = {
+        width: 150,
+        height: 150,
+
+        min: 70,
+        max: 82,
+
+        greenFrom: 73.0,
+        greenTo: 77,
+        yellowFrom: 77,
+        yellowTo: 79,
+        redFrom: 79,
+        redTo: 82,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 800,
+            easing: 'inAndOut',
+        },
+    };
+
+    options_HouseTemp = {
+        width: 150,
+        height: 150,
+
+        min: 62,
+        max: 84,
+
+        yellowFrom: 62,
+        yellowTo: 68,
+        yellowColor: "#4040ff",
+        greenFrom: 68,
+        greenTo: 76,
+        redFrom: 76,
+        redTo: 84,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 800,
+            easing: 'inAndOut',
+        },
+    };
+
+    options_OutsideTemp = {
+        width: 150,
+        height: 150,
+
+        min: -5,
+        max: 120,
+
+        yellowFrom: -5,
+        yellowTo: 32,
+        yellowColor: "#4040ff",
+        greenFrom: 32,
+        greenTo: 80,
+        redFrom: 80,
+        redTo: 120,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 800,
+            easing: 'inAndOut',
+        },
+    };
+
+    options_AtticTemp = {
+        width: 150,
+        height: 150,
+
+        min: -10,
+        max: 160,
+
+        yellowFrom: -10,
+        yellowTo: 32,
+        yellowColor: "#4040ff",
+        greenFrom: 32,
+        greenTo: 100,
+        redFrom: 100,
+        redTo: 160,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 800,
+            easing: 'inAndOut',
+        },
+    };
+
+    options_FreezerTemp = {
+        width: 150,
+        height: 150,
+
+        min: -10,
+        max: 40,
+
+        yellowFrom: -10,
+        yellowTo: -5,
+        yellowColor: "#dd2020",
+        greenFrom: -5,
+        greenTo: 10,
+        redFrom: 10,
+        redTo: 40,
+        redColor: "#dd2020",
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 800,
+            easing: 'inAndOut',
+        },
+    };
+
+    options_GrillTemp = {
+        width: 150,
+        height: 150,
+
+        min: 100,
+        max: 700,
+
+        yellowFrom: 100,
+        yellowTo: 225,
+        yellowColor: "#4040ff",
+        greenFrom: 225,
+        greenTo: 450,
+        redFrom: 450,
+        redTo: 700,
+        redColor: "#dd2020",
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 800,
+            easing: 'inAndOut',
+        },
+    };
+
+    options_Humidity = {
+        width: 150,
+        height: 150,
+
+        min: 25,
+        max: 60,
+
+        redFrom: 25,
+        redTo: 37,
+        redColor: "#dd2020",
+        greenFrom: 37,
+        greenTo: 50,
+        yellowFrom: 50,
+        yellowTo: 60,
+        yellowColor: "#dd2020",
+
+        minorTicks: 4,
+
+        animation: {
+            duration: 2000,
+            easing: 'inAndOut',
+        },
+    };
+
+    google.load('visualization', '1', {packages:['gauge','table']});
+    google.setOnLoadCallback(function() {
+	    	drawCharts(true);
+		setTimeout(function() {
+		    drawCharts( false ) ; }, 2000 );
+		setInterval(function() {
+		    drawCharts( false ) ; }, 60000 );
+	} );
+
+    function displayData(metricID, gaugeName, gauge_num, options, forceZero) {
+        gauge_div = gauge_num + "_div" ;
+        gauge_time = gauge_num + "_time" ;
+
+        loadData( metricID, gaugeName, forceZero ) ;
+
+        var view = new google.visualization.DataView(dataTable);
+        var gauge = new google.visualization.Gauge(document.getElementById(gauge_div));
+
+        view.setRows(dataTable.getFilteredRows([{column: 0, value: gaugeName}]));
+        gauge.draw(view, options);
+
+        var timeView = new google.visualization.DataView(timeTable);
+        timeView.setRows(timeTable.getFilteredRows([{column: 0, value: gaugeName}]));
+
+        if( timeView.getNumberOfRows() >= 1 ) {
+            myUTC = new Date(timeView.getValue(0,1)) ;
+	    $("#"+gauge_time).html("<center><p>"+myUTC.getHours()+":"+myUTC.getMinutes()+"<br/>"+myUTC.getFullYear()+"-"+(myUTC.getMonth()+1)+"-"+myUTC.getDate()+"</p></center>") ;
+        }
+    }
+
+    function loadData( metricID, gaugeName, forceZero ) {
+        if( forceZero )
+        {
+		dataTable.addRow([ gaugeName, 0 ]);
+	}
+        else
+        {
+		var URLcall = 'https://api.xively.com/v2/feeds/1785749146/datastreams/'+metricID+'.json?&key=JnSmyhCrwAt7w8ecU7qUofv9O7leQCLGi8vq60y4p527Px3g'
+
+		$.ajax({
+		  url: URLcall,
+		  dataType: 'json',
+		  async: false,
+                  cache: false,
+		  success: function(JSONdata) {
+		    if (JSONdata.current_value) {
+			dataTable.addRow([ gaugeName, (JSONdata.current_value/1) ]);
+			timeTable.addRow([ gaugeName, JSONdata.at ]);
+		    }
+		  }
+		});
+        }
+
+    }
+
+    function drawCharts( forceZero ) {
+        dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Label');
+        dataTable.addColumn('number', 'Value');
+
+        timeTable = new google.visualization.DataTable();
+        timeTable.addColumn('string', 'Label');
+        timeTable.addColumn('string', 'Time');
+
+        displayData("freezer",     "Freezer",  '3', options_FreezerTemp, forceZero) ;
+        displayData("humidity",    "Humidity", '6', options_Humidity, forceZero) ;
+/*        displayData("aquarium",    "Aquarium", '1', options_Aquarium, forceZero)*/
+/*        displayData("kitchen",     "House",    '4', options_HouseTemp, forceZero) ;*/
+/*        displayData("pittemp",     "Grill",    '5', options_GrillTemp, forceZero) ;*/
+        displayData("outsidetemp", "Outside",  '2', options_OutsideTemp, forceZero) ;
+
+    }
+</script>

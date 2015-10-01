@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>The Herr House</title>
+</head>
+
+<body>
+&nbsp;&nbsp;&nbsp;<a style="font-size:100%" target="video_win" href="/video.html">Live video</a>
+&nbsp;&nbsp;&nbsp; <a style="font-size:100%" target="graph_win" href="/tempgraph_inside.html">Inside graph</a>
+&nbsp;&nbsp;&nbsp; <a style="font-size:100%" target="graph_win" href="/tempgraph_outside.html">Outside+Attic graph</a>
+&nbsp;&nbsp;&nbsp;<a style="font-size:100%" target="graph_win" href="/tempgraph_aquarium.html">Aquarium</a>
+&nbsp;&nbsp;&nbsp;<a style="font-size:100%" target="graph_win" href="/tempgraph_freezer.html">Freezer</a>
+&nbsp;&nbsp;&nbsp;<a style="font-size:100%" target="graph_win" href="/tempgraph_grill.html">Grill</a>
+
+<div><iframe style="float:left; border-style: none" name="gauges_win" height=220 width=980 src="gauges.html" > </iframe>
+</div>
+<div><iframe style="float:left; border-style: none" name="graph_win" height=430 width=930 src="/tempgraph_freezer.html"> </iframe></div>
+<div><iframe name="video_win" style="float:left;" height=600 width=1040 src="video.html" > </iframe> </div> 
+<div><iframe name="video2_win" style="float:left;" height=500 width=650 src="video2.html" > </iframe> </div> 
+
+<script type="text/javascript">var SC_RumID = 1266;</script><script type="text/javascript" async src="https://www.statuscake.com/App/RUM/embed.js"></script>
+
+</body>
+</html>
+

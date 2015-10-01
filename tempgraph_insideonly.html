@@ -1,0 +1,197 @@
+
+<html>
+<head>
+	<LINK REL="SHORTCUT ICON" HREF="http://dl.dropbox.com/u/128855213/favicon.ico" />
+	<meta http-equiv="refresh" content="300">
+	<title>Inside Temperatures</title>
+</head>
+
+<body>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+    	<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+    	<script type='text/javascript'>
+      	google.load('visualization', '1', {'packages':['table','annotatedtimeline']});
+	</script>
+
+        <script type="text/javascript">
+
+
+	var metricsOrder = [0,1,2,3]; // Remember, order is by Alpha Sort on the Xively Metric name (not tag)!
+        var whichMetrics = "computerroom,kitchen,nate_temp" ;
+	var default_daystofetch = 5;
+        var DEBUG=0;
+
+
+	//I stole this function almost verbatim from the Pachube web site.
+	//It formats the date into a form I like
+	function adjustdateformat(incoming){
+   	      if (typeof(incoming) != "function") { //no scripts allowed in data
+			var ts_parts = incoming.split('T');
+			var d_parts = ts_parts[0].split('-');
+			var t_parts = ts_parts[1].split(':');
+			var d = new Date(Date.UTC(parseInt(d_parts[0],10), parseInt(d_parts[1],10)-1 ,parseInt(d_parts[2],10), parseInt(t_parts[0],10), parseInt(t_parts[1],10), parseInt(t_parts[2],10) ) );
+			return(d);
+		} else {
+			alert("There was a script in the data !!");
+			return(0);  //for when there is a script
+		}
+	}
+	// this creates the table that will be stuffed with data returned
+	var data = new google.visualization.DataTable();
+
+	// The google data api doesn't have a call to return a column id by name
+	// so I had to invent this one
+	function getColumnIdByName(name){
+		var idx;
+		var thisname;
+		var lastOne = data.getNumberOfColumns();
+		for(idx = 0; idx < lastOne; idx++){
+			if(name.toString() == data.getColumnLabel(idx)){
+				return(idx);
+			}
+		}
+		// I really don't like magic values like this, but it'll do for now.
+		return(99);
+	}
+
+	// This parses into the json data to grab values.
+	// there's documentation all over the web on the json format
+	// but it has to be parsed to use it
+	function climbtree(archivedData){
+		// this will create the table for the graph
+		if (typeof(archivedData.datastreams[0].datapoints) == 'undefined'){
+			alert("No archived data returned");
+			return;
+		}
+                if(DEBUG) console.debug(archivedData);
+		$.each(archivedData.datastreams, function(key, value){
+			// key 0 has the first datastream and the times for the table.
+			// you'll always get this if there is data to deliver
+			if(key == 0 && data.getNumberOfColumns()==0){ // only add a date column for the first datastream
+				data.addColumn('datetime', 'Date');
+                        }
+			var columnIdx;
+			if((columnIdx = getColumnIdByName(value.tags)) == 99){
+				columnIdx = data.addColumn('number', value.tags); //new datastream came in
+			}
+			if( typeof(value.datapoints) != 'undefined' ){
+				var dateFmt ;
+				var level ;
+				var rowIdx ;
+				$.each(value.datapoints, function(key,value){
+					dateFmt = adjustdateformat(value.at);
+					rowList = data.getFilteredRows([{column:0,value:dateFmt}]); //find datetime in the table
+					if (typeof(rowList) == 'undefined' || rowList.length == 0){
+						rowIdx = data.addRow();
+						data.setValue(rowIdx, 0, dateFmt);
+					}
+					else {
+						//if( rowList.length > 0 )
+						rowIdx = rowList[0] ;
+					}
+					//level = value.value;
+					level = parseFloat(value.value);
+					data.setValue(rowIdx, columnIdx, level);
+				})
+			}
+		})
+	}
+	</script>
+
+	<!-- 	this actually goes and gets the data.  What I'm doing is grabbing the data
+		for two items: Real Power and Outside Temperature.  Since Cosm has a limit on
+		the number of items they will return, I do it in six hour intervals.  So, a day
+		will loop four times and two days 8, etc.  There's also a limit on other stuff,
+		so the most you can get is around a week.  If you want more, you'll have to do
+		some more work to handle it.  Remember though, there's a lot of data here and
+		it will take some time to get it back from the site.  That's why I prefer server
+		generated charts.  The server has the data right there and can access it quickly
+		when we go get it, it takes time for the chunks to come to us.
+	-->
+	<script type="text/javascript">
+	$(document).ready(function(){
+	        var duration_used = 12;  //12;
+	        var loopsperday = 24/duration_used;
+
+                //  Interval is in seconds
+                //  Max points returned is 1000
+		var url='https://api.xively.com/v2/feeds/1785749146.json?&key=JnSmyhCrwAt7w8ecU7qUofv9O7leQCLGi8vq60y4p527Px3g&limit=1000&datastreams='+whichMetrics+'&interval=60&duration='+duration_used+'hours';
+		var databack;
+		var startpoint = '';
+		var loopcount;
+		//alert("querystring day=" + queryString["numdays"]);
+		if(queryString["numdays"] == undefined)
+			loopcount = default_daystofetch * loopsperday;
+		else
+			loopcount = (queryString["numdays"] * loopsperday) + 1;
+		//alert('loopcount = ' + loopcount);
+                var prevStart ;
+		for ( var i=0; i<loopcount; i++ ){
+                        prevStart = startpoint ;
+
+			if(DEBUG) console.log('going for ' + url + startpoint);
+			$.ajax({
+    				type: 'GET',
+    				url: url + startpoint,
+    				dataType: 'json',
+    				data: {},
+    				async: false, // you have to have this so the data will arrive before display
+    				success: function(dataarchive) {
+ 					//alert("the url should have returned");
+					if (databack = (typeof(dataarchive.datastreams[0].datapoints) != 'undefined')){
+						var len = dataarchive.datastreams[0].datapoints.length;
+				if(DEBUG) console.log("got back " + len + " items");
+				if(DEBUG) console.log("from " + dataarchive.datastreams[0].datapoints[0].at +
+					"to " + dataarchive.datastreams[0].datapoints[len - 1].at);
+						startpoint = "&end=" + dataarchive.datastreams[0].datapoints[0].at;
+						climbtree(dataarchive);
+					};
+				}
+			});
+ 
+		}
+		data.sort([{column: 0}]);
+		var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chartholder'));
+		// OK, now I've got a chart, but need to rearrange the columns
+		// this is a matter of taste, so adjust as needed.
+		var chartView = new google.visualization.DataView(data);
+		// this sets the order of the columns
+		chartView.setColumns(metricsOrder);
+      	chart.draw(chartView, {displayAnnotations: true, 'scaleType':'maximized'});
+//      	chart.draw(chartView, {displayAnnotations: true, 'scaleType':'allmaximized', 'scaleColumns':[0,1]});
+
+//                var table = new google.visualization.Table(document.getElementById('datalist'));
+//                table.draw(data, {showRowNumber: true});
+	});
+	</script>
+
+	<!--
+		This little thing allows you to put a parameter in the URL to get
+	 	multiple days.  Use a ? then the number of days i.e. ?day=2 will get
+		you two days worth of data.
+	-->
+	<script type="text/javascript">
+		var queryString = new Array();
+		var parameters = window.location.search.substring(1).split('&');
+		for (var i=0; i<parameters.length; i++) {
+			var pos = parameters[i].indexOf('=');
+    			// If there is an equal sign, separate the parameter into the name and value,
+    			// and store it into the queryString array.
+    			if (pos > 0) {
+        			var paramname = parameters[i].substring(0,pos);
+        			var paramval = parameters[i].substring(pos+1);
+        			queryString[paramname] = unescape(paramval.replace(/\+/g,' '));
+    			}
+			else {
+        			//special value when there is a querystring parameter with no value
+        			queryString[parameters[i]]="[nil]"
+    			}
+		}
+	</script>
+	<!-- and the actual chart declaration; change this for size and stuff -->
+    	<div id='chartholder' style='width:100%; height:410px;'> </div>
+
+        <div id='datalist'></div>
+</body>
+</html>
+

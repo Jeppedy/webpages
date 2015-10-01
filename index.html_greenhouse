@@ -1,0 +1,13 @@
+<html>
+<head>
+<title>Greenhouse Project - St Patrick School</title>
+<meta http-equiv="refresh" content="600">
+</head>
+
+<body style="background-color:#E6F5EB;" >
+<center><h1>The Greenhouse Project - St Patrick School</h1></center>
+<center><div><iframe style="border:none" name="gauges_win" height=240 width=670 src="gauges_greenhouse.html" > </iframe></div></center>
+<center><div><iframe style="border:none" name="graph_win" height=430 width=930 src="http://theherrs.redirectme.net/greenhouse.html"> </iframe></div></center>
+</body>
+</html>
+

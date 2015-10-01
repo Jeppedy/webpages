@@ -1,0 +1,129 @@
+<html>
+  <head>
+    <title>Greenhouse Data</title>
+  </head>
+  <body>
+  <table>
+  <tr>
+  <td>
+    <div id='temp_div'></div>
+  </td>
+  <td>
+    <div id='humid_div'></div>
+  </td>
+  <td>
+    <div id='light_div'></div>
+  </td>
+  </tr>
+</table>
+
+  </body>
+</html>
+
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'></script>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+    var dataTable;
+    options_temp = {
+        width: 200,
+        height: 200,
+
+        min: 50,
+        max: 120,
+
+        greenFrom: 70,
+        greenTo: 85,
+
+        yellowFrom: 85,
+        yellowTo: 95,
+
+        redFrom: 95,
+        redTo: 120,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 400,
+            easing: 'out',
+        },
+    };
+
+    options_humid = {
+        width: 200,
+        height: 200,
+
+        min: 20,
+        max: 90,
+
+        greenFrom: 45,
+        greenTo: 70,
+
+        redFrom: 70,
+        redTo: 90,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 400,
+            easing: 'out',
+        },
+    };
+
+    options_light = {
+        width: 200,
+        height: 200,
+
+        min: 0,
+        max: 100,
+
+        greenFrom: 50,
+        greenTo: 80,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 400,
+            easing: 'out',
+        },
+    };
+
+    google.load('visualization', '1', {packages:['gauge']});
+    google.setOnLoadCallback(drawCharts);
+
+    function displayData(gaugeName, gauge_div, options) {
+        var view = new google.visualization.DataView(dataTable);
+        view.setRows(dataTable.getFilteredRows([{column: 0, value: gaugeName}]));
+        var gauge = new google.visualization.Gauge(document.getElementById(gauge_div));
+        gauge.draw(view, options);
+    }
+
+    function loadData( whichSensor, whichGauge ) {
+        var URLcall = 'https://api.xively.com/v2/feeds/1785749146/datastreams/'+whichSensor+'.json?&key=JnSmyhCrwAt7w8ecU7qUofv9O7leQCLGi8vq60y4p527Px3g'
+
+        $.ajax({
+          url: URLcall,
+          dataType: 'json',
+          async: false,
+          success: function(JSONdata) {
+            if (JSONdata.current_value) {
+                dataTable.addRow([ whichGauge, (JSONdata.current_value/1) ]);
+            }
+          }
+        });
+    }
+
+    function drawCharts() {
+        dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Label');
+        dataTable.addColumn('number', 'Value');
+
+        loadData( "GH_Temp", "Temperature" ) ;
+        loadData( "GH_Humidity", "Humidity" ) ;
+        loadData( "GH_Light", "Light" ) ;
+
+        displayData("Temperature", 'temp_div', options_temp)
+        displayData("Humidity", 'humid_div', options_humid) ;
+        displayData("Light", 'light_div', options_light) ;
+
+    }
+</script>

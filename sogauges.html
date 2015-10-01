@@ -1,0 +1,133 @@
+<html>
+  <head>
+    <title>Solar Oven Gauges</title>
+  </head>
+  <body>
+  <table>
+  <tr>
+  <td>
+    <div id='one_tdiv'></div>
+  </td>
+  <td>
+    <div id='two_tdiv'></div>
+  </td>
+  <td>
+    <div id='three_tdiv'></div>
+  </td>
+  <td>
+    <div id='four_tdiv'></div>
+  </td>
+  <tr>
+  <td>
+    <div id='one_ldiv'></div>
+  </td>
+  <td>
+  <div id='two_ldiv'></div>
+  </td>
+  <td>
+    <div id='three_ldiv'></div>
+  </td>
+  <td>
+    <div id='four_ldiv'></div>
+  </td>
+  </tr>
+</table>
+
+  </body>
+</html>
+
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'></script>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+    var dataTable;
+    options_light = {
+        width: 150,
+        height: 150,
+
+        min: 0,
+        max: 10,
+
+        redFrom: 7,
+        redTo: 10,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 400,
+            easing: 'out',
+        },
+    };
+
+    options_temp = {
+        width: 150,
+        height: 150,
+
+        min: 70,
+        max: 220,
+
+        greenFrom: 100.0,
+        greenTo: 130,
+        yellowFrom: 130,
+        yellowTo: 150,
+        redFrom: 150,
+        redTo: 220,
+
+        minorTicks: 5,
+
+        animation: {
+            duration: 400,
+            easing: 'out',
+        },
+    };
+
+    google.load('visualization', '1', {packages:['gauge']});
+    google.setOnLoadCallback(drawCharts);
+
+    function displayData(gaugeName, gauge_div, options) {
+        var view = new google.visualization.DataView(dataTable);
+        view.setRows(dataTable.getFilteredRows([{column: 0, value: gaugeName}]));
+        var gauge = new google.visualization.Gauge(document.getElementById(gauge_div));
+        gauge.draw(view, options);
+    }
+
+    function loadData( whichSensor, whichGauge ) {
+        var URLcall = 'https://api.xively.com/v2/feeds/1785749146/datastreams/'+whichSensor+'.json?&key=JnSmyhCrwAt7w8ecU7qUofv9O7leQCLGi8vq60y4p527Px3g'
+
+        $.ajax({
+          url: URLcall,
+          dataType: 'json',
+          async: false,
+          success: function(JSONdata) {
+            if (JSONdata.current_value) {
+                dataTable.addRow([ whichGauge, (JSONdata.current_value/1) ]);
+            }
+          }
+        });
+    }
+
+    function drawCharts() {
+        dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Label');
+        dataTable.addColumn('number', 'Value');
+
+        loadData( "Oven1_Temp", "Oven1 Temp" ) ;
+        loadData( "Oven2_Temp", "Oven2 Temp" ) ;
+        loadData( "Oven3_Temp", "Oven3 Temp" ) ;
+        loadData( "Oven4_Temp", "Oven4 Temp" ) ;
+        loadData( "Oven1_Light", "Oven1 Light" ) ;
+        loadData( "Oven2_Light", "Oven2 Light" ) ;
+        loadData( "Oven3_Light", "Oven3 Light" ) ;
+        loadData( "Oven4_Light", "Oven4 Light" ) ;
+
+        displayData("Oven1 Temp", 'one_tdiv', options_temp)
+        displayData("Oven2 Temp", 'two_tdiv', options_temp) ;
+        displayData("Oven3 Temp", 'three_tdiv', options_temp) ;
+        displayData("Oven4 Temp", 'four_tdiv', options_temp) ;
+
+        displayData("Oven1 Light", 'one_ldiv', options_light)
+        displayData("Oven2 Light", 'two_ldiv', options_light) ;
+        displayData("Oven3 Light", 'three_ldiv', options_light) ;
+        displayData("Oven4 Light", 'four_ldiv', options_light) ;
+
+    }
+</script>

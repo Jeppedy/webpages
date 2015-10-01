@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>The Herr House</title>
+</head>
+
+<body>
+<div><iframe style="float:left" name="gauges_win" height=190 width=690 src="gauges_notable.html" > </iframe>
+<ul style="margin-left:720px;" >
+    <li><a style="font-size:100%" target="_new" href="http://theherrs.redirectme.net:8083"/>Directory Listing</a></li>
+    <li><a style="font-size:100%" target="video_win" href="video.html">Live video</a></li>
+    <li><a style="font-size:100%" target="graph_win" href="http://theherrs.redirectme.net/tempgraph2.html">InsideOnly graph</a></li>
+    <li><a style="font-size:100%" target="graph_win" href="http://theherrs.redirectme.net/tempgraph.html">InAndOut graph</a></li>
+    <li><a style="font-size:100%" target="graph_win" href="http://theherrs.redirectme.net/so_temp.html">SolarOven Temps</a></li>
+    <li><a style="font-size:100%" target="graph_win" href="http://theherrs.redirectme.net/so_light.html">SolarOven Light</a></li>
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
+</div>
+<div><iframe style="float:left" name="graph_win" height=430 width=930 src="http://theherrs.redirectme.net/tempgraph2.html"> </iframe></div>
+<div><iframe name="video_win" style="float:left;" height=465 width=830 src="video.html" > </iframe> </div> 
+</body>
+</html>
+
