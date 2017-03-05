@@ -217,11 +217,11 @@
 		    drawCharts( false ) ; }, 60000 );
 	} );
 
-    function displayData(metricID, gaugeName, gauge_num, options, forceZero) {
+    function displayData(metricName, metricID, gaugeName, gauge_num, options, forceZero) {
         gauge_div = gauge_num + "_div" ;
         gauge_time = gauge_num + "_time" ;
 
-        loadData( metricID, gaugeName, forceZero ) ;
+        loadData( metricName, metricID, gaugeName, forceZero ) ;
 
         var view = new google.visualization.DataView(dataTable);
         var gauge = new google.visualization.Gauge(document.getElementById(gauge_div));
@@ -238,7 +238,7 @@
         }
     }
 
-    function loadData( metricID, gaugeName, forceZero ) {
+    function loadData( metricName, metricID, gaugeName, forceZero ) {
         if( forceZero )
         {
 		dataTable.addRow([ gaugeName, 0 ]);
@@ -246,7 +246,8 @@
         else
         {
 		var URLcall = 'https://api.xively.com/v2/feeds/1785749146/datastreams/'+metricID+'.json?&key=JnSmyhCrwAt7w8ecU7qUofv9O7leQCLGi8vq60y4p527Px3g'
-		var URLcall = 'http://theherrs.redirectme.net/gauge_data/'
+		var URLcall = 'http://theherrs.redirectme.net/gauge_data/'+metricName+'/'+metricID+'/'
+		var URLcall = '/gauge_data/'+metricName+'/'+metricID+'/'
 
 		$.ajax({
 		  url: URLcall,
@@ -273,12 +274,12 @@
         timeTable.addColumn('string', 'Label');
         timeTable.addColumn('string', 'Time');
 
-        displayData("freezer",     "Freezer",  '3', options_FreezerTemp, forceZero) ;
-        displayData("humidity",    "Humidity", '6', options_Humidity, forceZero) ;
+        displayData( "FreezerTemp", "temp", "Freezer", '3', options_FreezerTemp, forceZero) ;
+        displayData("Voltage", "volts", "Tester Voltage", '6', options_Humidity, forceZero) ;
 /*        displayData("aquarium",    "Aquarium", '1', options_Aquarium, forceZero)*/
 /*        displayData("kitchen",     "House",    '4', options_HouseTemp, forceZero) ;*/
 /*        displayData("pittemp",     "Grill",    '5', options_GrillTemp, forceZero) ;*/
-        displayData("outsidetemp", "Outside",  '2', options_OutsideTemp, forceZero) ;
+        displayData("OutsideTemp", "outsidetemp", "Outside",  '2', options_OutsideTemp, forceZero) ;
 
     }
 </script>
